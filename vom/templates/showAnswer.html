@@ -1,0 +1,75 @@
+{% extends "_base.html" %}
+{% block body %}
+	<div class="panel panel-default">
+		<div class="panel-heading">{{ question.contents }}</div>
+		<div class="panel-body">
+			<div>
+				{{ status.star.image|safe }}
+			</div>
+			<ul class="list-group">
+				{% for a in answers %}
+					<li class="list-group-item">
+						<h4 class="list-group-item-heading">{{ a.contents|linebreaksbr }}</h4>
+						<p class="list-group-item-text date" title='{{ a.date|date:"c" }}'>
+							{{ a.date|timesince }}전
+						</p>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+{% endblock %}
+{% block leftButton %}
+<button type="button" class="btn btn-default btn-lg" onClick="location.href='{% url 'index' %}'">목록</button>
+{% endblock %}
+{% block centerLogo %}
+	<h1 class="text-center" style="margin: 0;">{{ star.name }}</h1><p class="text-center">{{ star.eng }}</p>
+{% endblock %}
+{% block rightButton %}
+<button type="button" class="btn btn-default btn-lg pull-right" onClick="location.href='{% url 'setting' %}'">설정</button>
+{% endblock %}
+{% block bottomBody %}
+<script src="https://raw.github.com/jaz303/jquery-grab-bag/master/javascripts/jquery.autogrow-textarea.js" type="text/javascript"></script>
+{% endblock %}
+{% block script %}
+	var numberOfstar = $("g.star").length;
+	var dot = $("g.star");
+
+	if(numberOfstar){
+		$.each(dot, function(i, v){
+			$(this).hide();
+		});
+
+		for(var i = 1; i <= {{ status.count }}; i++){
+			$("g."+(i).toString()).show();
+		}
+	}
+
+	var twk = setInterval(function(){
+		twinkle("{{ status.count }}");
+	}, 100);
+{% endblock %}
+{% block outScript %}
+	var twinkleSwitch = true;
+
+	function twinkle(target){
+		var opa = $("g.dot."+target).css("opacity");
+
+		console.log($("g."+target).css("opacity"));
+
+		if(twinkleSwitch){
+			$("g.dot."+target).css("opacity", parseFloat(opa) - 0.1);
+
+			if($("g.dot."+target).css("opacity") < 0.1){
+				twinkleSwitch = false;
+			}
+		}
+		else{
+			$("g.dot."+target).css("opacity", parseFloat(opa) + 0.1);
+
+			if($("g.dot."+target).css("opacity") == 1){
+				twinkleSwitch = true;
+			}
+		}
+	}
+{% endblock %}

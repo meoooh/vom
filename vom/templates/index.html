@@ -1,0 +1,21 @@
+{% extends "_base.html" %}
+{% block body %}
+	<div class="list-group">
+		<a class="btn btn-default btn-lg btn-block" href="{% url 'today' %}">오늘의 질문</a>
+	{% for q in questions %}
+		<a href="{% url 'showAnswer' q.pk %}" class="list-group-item">
+			<h4 class="list-group-item-heading">{{ q.contents }}</h4>
+			<p class="list-group-item-text date">{{ q.date|date:"Y년 F d일" }}</p>
+		</a>
+	{% endfor %}
+	</div>
+{% endblock %}
+{% block leftButton %}
+<button type="button" class="btn btn-default" onClick="location.href='{% url 'constellations' %}'">별자리</button>
+{% endblock %}
+{% block centerLogo %}
+	<h1 class="text-center" style="margin: 0;">VOM</h1><p class="text-center">Voice Of Mind</p>
+{% endblock %}
+{% block rightButton %}
+<button type="button" class="btn btn-default pull-right" onClick="location.href='{% url 'setting' %}'">설정</button>
+{% endblock %}
