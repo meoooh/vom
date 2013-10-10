@@ -1,0 +1,6 @@
+{% for q in questions %}
+	<a href="{% url 'showAnswer' q.pk %}" class="list-group-item">
+		<h4 class="list-group-item-heading">{{ q.contents }}</h4>
+		<p class="list-group-item-text date">{{ q.date|date:"Y년 F d일" }}</p>
+	</a>
+{% endfor %}

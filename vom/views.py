@@ -163,6 +163,21 @@ def stars(request):
     requestContext = RequestContext(request, variables)
     return render_to_response('star.html', requestContext)
 
+@login_required
+def showConstellation(request, name):
+    constellation = Constellation.objects.get(name=name)
+    answers = constellation.answer_set
+    _questions = [a.question for a in answers.filter(writer=request.user)]
+    questions = Question.objects.filter(pk__in=[q.pk for q in _questions])
+
+    variables = {'questions': questions, 'constellation': constellation}
+    requestContext = RequestContext(request, variables)
+
+    return render_to_response(
+        'constellationRelatedQuestion.html',
+        requestContext,
+    )
+
 def test(request):
     from django.core import serializers
 

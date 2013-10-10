@@ -1,15 +1,13 @@
 {% extends "_base.html" %}
 {% block body %}
-	<div class="list-group">
-		<a class="btn btn-default btn-lg btn-block" href="{% url 'today' %}">오늘의 질문</a>
 	{% include "partial/questionList.html" %}
 	</div>
 {% endblock %}
 {% block leftButton %}
-<button type="button" class="btn btn-default btn-lg" onClick="location.href='{% url 'constellations' %}'">별자리</button>
+<button type="button" class="btn btn-default btn-lg" onClick="location.href='{% url 'index' %}'">목록</button>
 {% endblock %}
 {% block centerLogo %}
-	<h1 class="text-center" style="margin: 0;">VOM</h1><p class="text-center">Voice Of Mind</p>
+	<h1 class="text-center" style="margin: 0;">{{ constellation.name }}</h1><p class="text-center">{{ constellation.eng }}</p>
 {% endblock %}
 {% block rightButton %}
 <button type="button" class="btn btn-default btn-lg pull-right" onClick="location.href='{% url 'setting' %}'">설정</button>

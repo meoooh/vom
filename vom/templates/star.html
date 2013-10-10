@@ -2,29 +2,23 @@
 {% block body %}
 	<div id="container" class="js-masonry" data-masonry-options='{ "columnWidth": 200, "itemSelector": ".item" }'>
 		{% for c in constellations %}
-		<div class="item">
-			{{ c.stuff.image|safe }}
+		<div class="item" style="width: 200px;">
+			<a href="{% url 'showConstellation' c.stuff.name %}">{{ c.stuff.image|safe }}</a>
 		</div>
 		{% endfor %}
 		<div class="item" style="width: 200px;">
-			{{ star.image|safe }}
-		</div>
-		<div class="item" style="width: 200px;">
-			{{ star.image|safe }}
-		</div>
-		<div class="item" style="width: 200px;">
-			{{ star.image|safe }}
+			<a href="{% url 'showConstellation' star.name %}">{{ star.image|safe }}</a>
 		</div>
 	</div>
 {% endblock %}
 {% block leftButton %}
-<button type="button" class="btn btn-default" onClick="location.href='{% url 'index' %}'">목록</button>
+<button type="button" class="btn btn-default btn-lg" onClick="location.href='{% url 'index' %}'">목록</button>
 {% endblock %}
 {% block centerLogo %}
 	<h1 class="text-center" style="margin: 0;">VOM</h1><p class="text-center">Voice Of Mind</p>
 {% endblock %}
 {% block rightButton %}
-<button type="button" class="btn btn-default pull-right" onClick="location.href='{% url 'setting' %}'">설정</button>
+<button type="button" class="btn btn-default btn-lg pull-right" onClick="location.href='{% url 'setting' %}'">설정</button>
 {% endblock %}
 {% block bottomBody %}
 	</form>
