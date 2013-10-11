@@ -9,6 +9,7 @@
 	<body>
 		<form role="form" method="post" action="/login">
 			{% csrf_token %}
+			<input type="hidden" name="next" value="{{ next }}">
 			<div class="container">
 				<div class="row body">
 					<div class="col-md-12">
@@ -23,10 +24,10 @@
 							<input autocomplete="off" class="form-control" id="id_password" maxlength="128" name="password" placeholder="비밀번호" required="true" type="password" />
 						</div>
 						<div class="row">
-							<div class="col-md-7 col-xs-7 ol-sm-7 col-lg-7">
+							<div class="col-md-6 col-xs-6 ol-sm-6 col-lg-6">
 								<a class="btn btn-default btn-lg btn-block" href="/join">안녕? 처음만나 :)</a>
 							</div>
-							<div class="col-md-5 col-xs-5 ol-sm-5 col-lg-5">
+							<div class="col-md-6 col-xs-6 ol-sm-6 col-lg-6">
 								<input class="btn btn-default btn-lg btn-block" type="submit" value="로그인">
 							</div>
 						</div>

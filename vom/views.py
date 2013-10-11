@@ -13,18 +13,21 @@ from django.core.urlresolvers import reverse
 
 @login_required
 def index(request):
-    answers = request.user.answer_set.all()
+    if request.method == "GET":
+        answers = request.user.answer_set.all()
 
-    #중복제거 안된상태의 list
-    _questions = [q.question for q in answers]
+        # 중복제거 안된상태의 list
+        _questions = [q.question for q in answers]
 
-     #중복 제거된 상태의 query_set
-    questions = Question.objects.filter(pk__in=[q.pk for q in _questions])
+        # 중복 제거된 상태의 query_set
+        questions = Question.objects.filter(pk__in=[q.pk for q in _questions])
 
-    variables = {'questions': questions}
-    requestContext = RequestContext(request, variables)
+        variables = {'questions': questions}
+        requestContext = RequestContext(request, variables)
 
-    return render_to_response('index.html', requestContext)
+        return render_to_response('index.html', requestContext)
+    else:
+        return HttpResponseNotAllowed(['POST'])
 
 @login_required
 def createAnswer(request):
@@ -87,51 +90,63 @@ def createAnswer(request):
                 status.count += 1
                 status.save()
 
-        return HttpResponseRedirect(
-            reverse(
-                'showAnswer',
-                kwargs={'pk': request.user.questionOfToday.pk},
+            return HttpResponseRedirect(
+                reverse(
+                    'showAnswer',
+                    kwargs={'pk': request.user.questionOfToday.pk},
+                )
             )
-        )
+        else:
+            requestContext = RequestContext(request, {'form': form})
+            return render_to_response('today.html', requestContext)
     else:
         return HttpResponseNotAllowed(['POST'])
 
-@login_required
-def questions(request):
-    answers = request.user.answer_set.all()
+# @login_required
+# def questions(request):
+#     answers = request.user.answer_set.all()
 
-    #중복제거 안된상태의 list
-    _questions = [q.question for q in answers]
+#     #중복제거 안된상태의 list
+#     _questions = [q.question for q in answers]
 
-     #중복 제거된 상태의 query_set
-    questions = Question.objects.filter(pk__in=[q.pk for q in _questions])
+#      #중복 제거된 상태의 query_set
+#     questions = Question.objects.filter(pk__in=[q.pk for q in _questions])
 
-    variables = {'questions': questions}
-    requestContext = RequestContext(request, variables)
+#     variables = {'questions': questions}
+#     requestContext = RequestContext(request, variables)
 
-    return render_to_response('questions.html', requestContext)
+#     return render_to_response('questions.html', requestContext)
 
 @login_required
 def showAnswer(request, pk):
-    question = Question.objects.get(pk=pk)
-    answers = question.answer_set.filter(writer=request.user)
+    if request.method == "GET":
+        question = Question.objects.get(pk=pk)
+        answers = question.answer_set.filter(writer=request.user)
 
-    variables = {
-        'answers': answers,
-        'question': question,
-        'status': request.user.status,
-        'star': answers[0].star,
-    }
-    requestContext = RequestContext(request, variables)
+        variables = {
+            'answers': answers,
+            'question': question,
+            'status': request.user.status,
+            'star': answers[0].star,
+        }
+        requestContext = RequestContext(request, variables)
 
-    return render_to_response('showAnswer.html', requestContext)
+        return render_to_response('showAnswer.html', requestContext)
+    else:
+        return HttpResponseNotAllowed(['POST', 'GET'])
 
 def join(request):
     if request.method == "POST":
         form = JoinForm(request.POST)
 
         if form.is_valid():
-            user = form.save()
+            user = VomUser.objects.create_user(
+                    email=form.cleaned_data['email'],
+                    name=form.cleaned_data['name'],
+                    birthday=form.cleaned_data['birthday'],
+                    sex=form.cleaned_data['sex'],
+                    password=form.cleaned_data['password'],
+            )
             # import ipdb;ipdb.set_trace()
             Status.objects.create(
                 user=user,
@@ -139,8 +154,10 @@ def join(request):
             )
 
             return HttpResponseRedirect(reverse('login'))
-    if request.method == "GET":
+    elif request.method == "GET":
         form = JoinForm()
+    else:
+        return HttpResponseNotAllowed(['POST', 'GET'])
 
     variables = {'form': form}
     requestContext = RequestContext(request, variables)
@@ -149,34 +166,43 @@ def join(request):
 
 @login_required
 def cogwheel(request):
-    return render_to_response('setting.html')
+    if request.method == "GET":
+        return render_to_response('setting.html')
+    else:
+        return HttpResponseNotAllowed(['GET'])
 
 @login_required
 def stars(request):
-    variables = {}
+    if request.method == "GET":
+        variables = {}
 
-    constellations = Item.objects.filter(user=request.user)
+        constellations = Item.objects.filter(user=request.user)
 
-    variables['constellations'] = constellations
-    variables['star'] = request.user.status.star
+        variables['constellations'] = constellations
+        variables['star'] = request.user.status.star
 
-    requestContext = RequestContext(request, variables)
-    return render_to_response('star.html', requestContext)
+        requestContext = RequestContext(request, variables)
+        return render_to_response('star.html', requestContext)
+    else:
+        return HttpResponseNotAllowed(['GET'])
 
 @login_required
 def showConstellation(request, name):
-    constellation = Constellation.objects.get(name=name)
-    answers = constellation.answer_set
-    _questions = [a.question for a in answers.filter(writer=request.user)]
-    questions = Question.objects.filter(pk__in=[q.pk for q in _questions])
+    if request.method == "GET":
+        constellation = Constellation.objects.get(name=name)
+        answers = constellation.answer_set
+        _questions = [a.question for a in answers.filter(writer=request.user)]
+        questions = Question.objects.filter(pk__in=[q.pk for q in _questions])
 
-    variables = {'questions': questions, 'constellation': constellation}
-    requestContext = RequestContext(request, variables)
+        variables = {'questions': questions, 'constellation': constellation}
+        requestContext = RequestContext(request, variables)
 
-    return render_to_response(
-        'constellationRelatedQuestion.html',
-        requestContext,
-    )
+        return render_to_response(
+            'constellationRelatedQuestion.html',
+            requestContext,
+        )
+    else:
+        return HttpResponseNotAllowed(['GET'])
 
 def test(request):
     from django.core import serializers

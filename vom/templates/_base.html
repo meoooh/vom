@@ -30,13 +30,15 @@
 			</div>
 		</div>
 		{% block bottomBody %}{% endblock %}
-		<script>
+		<script type="text/javascript">
 			'use strict';
+
+			jQuery.noConflict();
 
 			{% block outScript %}{% endblock %}
 
-			$(document).ready(function(){
-				$('div.body').css('padding-top', $("#top-nav").outerHeight());
+			jQuery(document).ready(function(){
+				jQuery('div.body').css('padding-top', jQuery("#top-nav").outerHeight());
 				{% block script %}{% endblock %}
 			});
 		</script>

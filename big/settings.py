@@ -8,8 +8,8 @@ AUTH_USER_MODEL = 'vom.VomUser'
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = '/today'
 
 ADMINS = (
     ('Vom', 'hgk617@naver.com'),
