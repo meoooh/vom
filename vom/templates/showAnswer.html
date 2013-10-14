@@ -31,22 +31,49 @@
 {% block bottomBody %}
 {% endblock %}
 {% block script %}
-	var numberOfstar = jQuery("g.star").length;
-	var dot = jQuery("g.star");
 
-	if(numberOfstar){
-		jQuery.each(dot, function(i, v){
-			jQuery(this).hide();
-		});
+	if({{ hideAndShow|default:"false" }}){
+		var numberOfstar = jQuery("g.star").length;
 
-		for(var i = 1; i <= {{ status.count }}; i++){
-			jQuery("g."+(i).toString()).show();
+		if(numberOfstar){
+			jQuery.each(jQuery("g.star"), function(i, v){
+				jQuery(this).hide();
+			});
+
+			for(var i = 1; i <= {{ status.count }}; i++){
+				jQuery("g."+(i).toString()).show();
+			}
 		}
+
+		setInterval(function(){
+			jQuery("g.dot.{{ status.count }}").fadeOut("slow").fadeIn("slow");
+		}, 100);
+	}
+	else{
+		var indexList = new Array();
+
+		while (indexList.length != {{ star.dot }}) {
+			var number = parseInt(Math.random() * {{ star.dot }}) + 1;
+
+			if (jQuery.inArray(number, indexList) == -1) {
+				indexList.push(number);
+			}
+		}
+
+		jQuery.each(indexList, function(key, value){
+			setTimeout(function(){
+				setInterval(function(){
+					jQuery("g.dot."+value).fadeOut("slow").fadeIn("slow");
+				}, 100);
+			}, 1000*value);
+		});
 	}
 
 {% endblock %}
 {% block outScript %}
-var twk = setInterval(function(){
-	jQuery("g.dot.{{ status.count }}").fadeOut("slow").delay(100).fadeIn("slow");
-}, 100);
+function twinkle(target){
+	setInterval(function(){
+		jQuery(target).fadeOut("slow").fadeIn("slow");
+	}, 100);
+}
 {% endblock %}

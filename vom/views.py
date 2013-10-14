@@ -10,6 +10,7 @@ from vom.forms import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotAllowed
 from django.core.urlresolvers import reverse
+from django.http import Http404
 
 @login_required
 def index(request):
@@ -46,18 +47,23 @@ def createAnswer(request):
                 request.user.dateOfRecevingLastQuestion = date.today()
                 request.user.point = True
                 request.user.questionOfToday = question
-
+                # import ipdb;ipdb.set_trace()
                 if request.user.status.count == request.user.status.star.dot:
                     Item.objects.create(
                         user=request.user,
                         stuff=request.user.status.star
                     )
-                    _items = Item.objects.filter(user=request.user)
-                    items = [i.pk for i in _items]
-                    constellations = Constellation.objects.exclude(pk__in=items)
-                    constellation = constellations.order_by('?')[0]
+                    items = Item.objects.filter(user=request.user)
+                    _stars = [i.stuff for i in items]
+                    star = [s.pk for s in _stars]
+                    constellations = Constellation.objects.exclude(pk__in=star)
+                    try:
+                        constellation = constellations.order_by('?')[0]
+                    except:
+                        assert False, u"별이 부족합니다."
                     request.user.status.star = constellation
                     request.user.status.count = 0
+                    request.user.status.save()
 
                 request.user.save()
         else:
@@ -123,12 +129,16 @@ def showAnswer(request, pk):
         question = Question.objects.get(pk=pk)
         answers = question.answer_set.filter(writer=request.user)
 
-        variables = {
-            'answers': answers,
-            'question': question,
-            'status': request.user.status,
-            'star': answers[0].star,
-        }
+        try:
+            variables = {
+                'answers': answers,
+                'question': question,
+                'status': request.user.status,
+                'star': answers[0].star,
+                'hideAndShow': 'true',
+            }
+        except:
+            raise Http404
         requestContext = RequestContext(request, variables)
 
         return render_to_response('showAnswer.html', requestContext)
@@ -179,7 +189,8 @@ def stars(request):
         constellations = Item.objects.filter(user=request.user)
 
         variables['constellations'] = constellations
-        variables['star'] = request.user.status.star
+        if request.user.status.count:
+            variables['star'] = request.user.status.star
 
         requestContext = RequestContext(request, variables)
         return render_to_response('star.html', requestContext)
@@ -198,9 +209,49 @@ def showConstellation(request, name):
         requestContext = RequestContext(request, variables)
 
         return render_to_response(
-            'constellationRelatedQuestion.html',
+            'constellationRelatedQuestions.html',
             requestContext,
         )
+    else:
+        return HttpResponseNotAllowed(['GET'])
+
+@login_required
+def showConstellationRelatedQuestion(request, name, pk):
+    if request.method == "GET":
+        # import ipdb;ipdb.set_trace()
+        try:
+            constellation = Constellation.objects.get(name=name)
+        except:
+            raise Http404
+        item = Item.objects.filter(user=request.user)
+        item = item.filter(stuff=constellation)
+
+        if item.count():
+            try:
+                question = Question.objects.get(pk=pk)
+            except:
+                raise Http404
+            answers = question.answer_set.filter(writer=request.user)
+
+            variables = {
+                'answers': answers,
+                'question': question,
+                'status': {
+                    'star': item[0].stuff,
+                    'count': item[0].stuff.dot,
+                },
+                'star': constellation,
+                'hideAndShow': 'false',
+            }
+
+            if request.user.status.star == constellation:
+                variables['hideAndShow'] = 'true'
+
+            requestContext = RequestContext(request, variables)
+
+            return render_to_response('showAnswer.html', requestContext)
+        else:
+            raise Http404
     else:
         return HttpResponseNotAllowed(['GET'])
 
