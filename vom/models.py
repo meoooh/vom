@@ -95,7 +95,7 @@ class VomUser(AbstractBaseUser, PermissionsMixin):
 
     dateOfRecevingLastQuestion = models.DateField(blank=True)
     questionOfToday = models.ForeignKey(Question, null=True, blank=True)
-    point = models.BooleanField()
+    point = models.BooleanField(default=False)
 
     objects = MyUserManager()
 
